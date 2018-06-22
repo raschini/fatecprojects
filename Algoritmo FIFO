@@ -1,0 +1,162 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+int main()
+{
+    printf(" ------- Gerenciamento de memoria: Algoritmo FIFO ------- \n");
+
+    int qtd_reg, frame, i, j, k, l, f, cont, aux;
+
+    do{
+    printf("\nDigite a quantidade de registros: ");
+    scanf("%d",&qtd_reg);
+    if (qtd_reg<1) printf("Quantidade de registros invalidos, digite um valor maior que zero.\n");
+    } while (qtd_reg<1);
+    do{
+    printf("\nDigite a quantidade de frames: ");
+    scanf("%d",&frame);
+    if (frame<1) printf ("Quantidade de frames invalidos, digite um valor maior que zero.\n");
+    } while (frame<1);
+
+    int vet_reg[qtd_reg];
+    int faltas[qtd_reg];
+
+    printf("\nDigite o numero de cada registro.\n");
+
+    for(i=0;i<qtd_reg;i++){
+            //vet_reg[i] = rand() % 9; /* ------------ FUNÇÃO RAND PARA PREENCHIMENTO ALEATÓRIO ---------*/
+        printf("Registro numero [%d]: ",i+1);
+        scanf("%d",&vet_reg[i]);
+        while(vet_reg[i]<0){
+            printf("\nValor invalido, por favor, entre com um numero >= 0.");
+            printf("\nRegistro numero [%d]: ",i+1);
+            scanf("%d",&vet_reg[i]);
+        }
+    }
+
+
+    int n_reg[qtd_reg][frame];
+
+    /* ------ ZERANDO A MATRIZ -----*/
+    for(i=0;i<qtd_reg;i++){
+        for(j=0;j<frame;j++){
+            n_reg[i][j]=-1;
+        }
+    }
+
+    /*-------------ALOCAÇÃO DOS REGISTROS -------------*/
+
+    cont=0;
+
+    for(i=0;i<qtd_reg;i++){
+        if(i==0){
+            n_reg[0][0]=vet_reg[0];
+            faltas[i]=1;
+        }
+
+        if(i>0){
+            aux=0;
+
+            for(j=0;j<frame;j++){
+                    /*---CONDIÇÃO QUE PROCURA IGUALDADE DO REGISTRO NA LINHA DE CIMA----*/
+                for(k=0;k<frame;k++){
+                    if(vet_reg[i]==n_reg[i-1][k]){
+                        for(l=0;l<frame;l++){
+                            n_reg[i][l]=n_reg[i-1][l];
+                        }
+                        aux=1;
+                        faltas[i]=0;
+                    }
+                }
+                    /*----CASO NÃO HOUVER IGUALDADES O SISTEMA SUBSTITUI O PRIMEIRO ESPAÇO VAZIO----*/
+                if(aux==0){
+                    for(k=0;k<frame;k++){
+                        n_reg[i][k]=n_reg[i-1][k];
+                    }
+                    for(k=0;k<frame;k++){
+                        if((n_reg[i][k]==-1)&&(aux==0)){
+                            n_reg[i][k]=vet_reg[i];
+                            aux=1;
+                        }
+                    }
+                    faltas[i]=1;
+                }
+                    /*---CONDIÇÃO PARA QUANDO NÃO HÁ MAIS ESPAÇOS VAZIOS ----*/
+
+                if(aux==0){
+                    cont+= 1;
+                    for(k=0;k<frame;k++){
+                        n_reg[i][k]=n_reg[i-1][k];
+                    }
+                    n_reg[i][cont-1]=vet_reg[i];
+                    if(cont==frame){
+                            cont=0;
+                    }
+                    aux=1;
+                    faltas[i]=1;
+                }
+            } /*FIM DO FOR J*/
+        }
+    }
+
+    f=0;
+    for(i=0;i<qtd_reg;i++){
+        f+=faltas[i];
+    }
+
+
+    for(i=0;i<qtd_reg;i++){
+        printf("\n [%d]   -   ",vet_reg[i]);
+        for(j=0;j<frame;j++){
+        if(n_reg[i][j]<0){
+            printf("[ ] ");
+        }
+        if(n_reg[i][j]>=0){
+            printf("[%d] ",n_reg[i][j]);
+        }
+        }
+        if(faltas[i]==1){
+            printf("  -  [ F ]");
+        }
+        if(faltas[i]==0){
+            printf("  -  [S/F]");
+        }
+    }
+
+    printf("\n");
+system("pause");
+
+
+    printf("\nRegistros: ");
+
+    for(i=0;i<qtd_reg;i++){
+        printf(" [ %d ]",vet_reg[i]);
+    }
+    printf("\n\nProcessos: ");
+    for(i=0;i<frame;i++){
+            if(i>0){
+                printf("\n           ");
+            }
+        for(j=0;j<qtd_reg;j++){
+            if(n_reg[j][i]==-1){
+                printf(" [   ]");
+            }
+            if(n_reg[j][i]>=0){
+                printf(" [ %d ]",n_reg[j][i]);
+            }
+        }
+    }
+        printf("\n\nFaltas:    ");
+        for(j=0;j<qtd_reg;j++){
+            if(faltas[j]==1){
+            printf(" [ F ]");
+        }
+        if(faltas[j]==0){
+            printf(" [S/F]");
+        }
+
+    }
+
+    printf("\n\nTOTAL DE FALTAS: %d\n\n",f);
+    return 0;
+}
